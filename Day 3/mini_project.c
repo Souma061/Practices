@@ -9,6 +9,14 @@ struct student
   float marks;
 };
 
+// Function declarations
+int is_duplicate_roll(int roll);
+void add_students();
+void display_students();
+void search_student();
+void update_student();
+void delete_student();
+
 void add_students()
 {
   struct student s;
@@ -26,6 +34,14 @@ void add_students()
   printf("Enter student's roll number: ");
   scanf("%d", &s.roll);
   getchar();
+
+  // Check for duplicate roll number
+  if (is_duplicate_roll(s.roll))
+  {
+    printf("Error: Roll number %d already exists. Student not added.\n", s.roll);
+    fclose(fp);
+    return;
+  }
 
   printf("Enter student's marks: ");
   scanf("%f", &s.marks);
@@ -250,6 +266,44 @@ void delete_student()
   fclose(temp);
   remove("new.txt");
   rename("temp.txt", "new.txt");
+}
+
+// Function to check if roll number already exists
+int is_duplicate_roll(int roll)
+{
+  char line[200];
+  struct student s;
+  FILE *fp = fopen("new.txt", "r");
+
+  if (!fp)
+  {
+    return 0; // If file doesn't exist, no duplicates
+  }
+
+  while (fgets(line, sizeof(line), fp))
+  {
+    char *last_space = strrchr(line, ' ');
+    if (last_space)
+    {
+      *last_space = '\0';
+      s.marks = atof(last_space + 1);
+
+      char *second_last_space = strrchr(line, ' ');
+      if (second_last_space)
+      {
+        *second_last_space = '\0';
+        s.roll = atoi(second_last_space + 1);
+
+        if (s.roll == roll)
+        {
+          fclose(fp);
+          return 1; // Duplicate found
+        }
+      }
+    }
+  }
+  fclose(fp);
+  return 0; // No duplicate found
 }
 
 int main()
