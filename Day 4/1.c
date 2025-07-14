@@ -1,9 +1,21 @@
-#include<stdio.h>
 
-int main() {
-  int arr[] = {1,2,3,4};
-  for(int i = 3; i>=0;i--) {
-    printf("%d", &arr[i]);
-    return 0;
-  }
-}
+#include<stdio.h>
+#include<stdlib.h>
+
+struct address {
+    char city[30];
+    char state[30];
+    int pincode;
+};
+
+struct student {
+    char name[50];
+    int roll;
+    float marks;
+    struct address addr;
+};
+
+
+//add,sisplay,search by student name, search by roll number, search by pincode
+
+
