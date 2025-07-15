@@ -6,6 +6,14 @@ struct Node{
   struct Node *next;
 };
 
+void traversal(struct Node *ptr) {
+  while(ptr != NULL){
+
+    printf("%d\n" , ptr->data);
+    ptr = ptr->next;
+  }
+}
+
 int main() {
   struct Node *head = (struct Node *)malloc(sizeof(struct Node));
   struct Node *second = (struct Node *)malloc(sizeof(struct Node));
@@ -19,7 +27,10 @@ int main() {
 
   third->data = 15;
   third->next = NULL;
+  traversal(head);
 
-  
+  return 0;
+
+
 
 }
