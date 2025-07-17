@@ -66,6 +66,24 @@ struct Node *deleteAtIndex(struct Node *head, int index)
 
   return head;
 }
+// delet athe last node
+ struct Node *deleteAtEnd(struct Node *head) {
+  if(head == NULL) {
+    printf("List is empty\n");
+    return NULL;
+  }
+  if(head->next == NULL) {
+    free(head);
+    return NULL;
+  }
+  struct Node *p = head;
+  while(p->next->next != NULL) {
+    p = p->next;
+  }
+  free(p->next);
+  p->next = NULL;
+  return head;
+}
 
 void traversal(struct Node *ptr)
 {
@@ -93,19 +111,23 @@ int main()
   third->next = NULL;
   traversal(head);
 
-  printf("Testing deletion at index 1:\n");
-  head = deleteAtIndex(head, 1);
-  printf("After deletion at index 1:\n");
-  traversal(head);
+  // printf("Testing deletion at index 1:\n");
+  // head = deleteAtIndex(head, 1);
+  // printf("After deletion at index 1:\n");
+  // traversal(head);
 
-  printf("\nTesting deletion at index 0:\n");
-  head = deleteAtIndex(head, 0);
-  printf("After deletion at index 0:\n");
-  traversal(head);
+  // printf("\nTesting deletion at index 0:\n");
+  // head = deleteAtIndex(head, 0);
+  // printf("After deletion at index 0:\n");
+  // traversal(head);
 
-  printf("\nTesting deletion at invalid index:\n");
-  head = deleteAtIndex(head, 5);
-  printf("After attempting deletion at index 5:\n");
+  // printf("\nTesting deletion at invalid index:\n");
+  // head = deleteAtIndex(head, 5);
+  // printf("After attempting deletion at index 5:\n");
+  // traversal(head);
+
+  head = deleteAtEnd(head);
+  printf("\nAfter deleting the last node:\n");
   traversal(head);
 
   return 0;
