@@ -1,8 +1,66 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/select.h>
+#include <fcntl.h>
 
 #define Max_line 300
+volatile sig_atomic_t timeoutFlag = 0;
+
+void handle_timeout(int sig)
+{
+    timeoutFlag = 1;
+    printf("\n⏰ Time's up!\n");
+}
+
+int getInputWithTimeout(int *answer, int timeout_seconds)
+{
+    fd_set readfds;
+    struct timeval tv;
+    char buffer[100];
+
+    timeoutFlag = 0;
+
+    FD_ZERO(&readfds);
+    FD_SET(STDIN_FILENO, &readfds);
+
+    tv.tv_sec = timeout_seconds;
+    tv.tv_usec = 0;
+
+    printf("You have %d seconds to answer: ", timeout_seconds);
+    fflush(stdout);
+
+    int result = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &tv);
+
+    if (result == 0)
+    {
+        // Timeout
+        printf("\n⏰ Time's up!\n");
+        return 0;
+    }
+    else if (result > 0)
+    {
+        // Input available
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL)
+        {
+            if (sscanf(buffer, "%d", answer) == 1)
+            {
+                return 1; // Success
+            }
+        }
+        printf("Invalid input format!\n");
+        return 0;
+    }
+    else
+    {
+        // Error
+        printf("Input error!\n");
+        return 0;
+    }
+}
 
 int askQuestion(FILE *file, int *used5050, int *usedskip)
 {
@@ -11,12 +69,15 @@ int askQuestion(FILE *file, int *used5050, int *usedskip)
     int correctOption, userAnswer;
 
     // Read question and options
-    if (fgets(question, Max_line, file) == NULL) return -1;
+    if (fgets(question, Max_line, file) == NULL)
+        return -1;
     for (int i = 0; i < 4; i++)
     {
-        if (fgets(option[i], Max_line, file) == NULL) return -1;
+        if (fgets(option[i], Max_line, file) == NULL)
+            return -1;
     }
-    if (fscanf(file, "%d\n", &correctOption) != 1) return -1;
+    if (fscanf(file, "%d\n", &correctOption) != 1)
+        return -1;
 
     // Ask question
     printf("\n%s", question);
@@ -26,8 +87,12 @@ int askQuestion(FILE *file, int *used5050, int *usedskip)
     }
 
     printf("\nEnter your answer (1 - 4): ");
-    scanf("%d", &userAnswer);
-    while (getchar() != '\n'); // clear buffer
+
+    if (!getInputWithTimeout(&userAnswer, 10) || userAnswer < 1 || userAnswer > 4)
+    {
+        printf("❗ Time's up or invalid input!\n");
+        return 0;
+    }
 
     if (userAnswer == correctOption)
     {
@@ -40,12 +105,15 @@ int askQuestion(FILE *file, int *used5050, int *usedskip)
 
         int useLifeline = 0;
 
-        // Offer lifeline after wrong answer
         if (*used5050 == 0 || *usedskip == 0)
         {
             printf("Do you want to use a lifeline? (1: Yes, 0: No): ");
-            scanf("%d", &useLifeline);
-            while (getchar() != '\n');
+
+            if (!getInputWithTimeout(&useLifeline, 10))
+            {
+                printf("❗ Time's up or invalid input!\n");
+                return 0;
+            }
 
             if (useLifeline == 1)
             {
@@ -53,7 +121,7 @@ int askQuestion(FILE *file, int *used5050, int *usedskip)
                 {
                     printf("Using 50-50 lifeline...\n");
                     *used5050 = 1;
-                    // Show correct + one wrong option
+
                     printf("Options left:\n");
                     printf("%d. %s", correctOption, option[correctOption - 1]);
 
@@ -66,9 +134,14 @@ int askQuestion(FILE *file, int *used5050, int *usedskip)
                         }
                     }
 
+                    timeoutFlag = 0;
                     printf("Enter your answer (1 - 4): ");
-                    scanf("%d", &userAnswer);
-                    while (getchar() != '\n');
+
+                    if (!getInputWithTimeout(&userAnswer, 10) || userAnswer < 1 || userAnswer > 4)
+                    {
+                        printf("❗ Time's up or invalid input!\n");
+                        return 0;
+                    }
 
                     if (userAnswer == correctOption)
                     {
@@ -85,7 +158,7 @@ int askQuestion(FILE *file, int *used5050, int *usedskip)
                 {
                     printf("Using skip lifeline... Question skipped.\n");
                     *usedskip = 1;
-                    return 0; // no point change
+                    return 0;
                 }
                 else
                 {
@@ -106,6 +179,9 @@ int main()
         printf("Error opening file.\n");
         return 1;
     }
+
+    // Register signal handler
+    signal(SIGALRM, handle_timeout);
 
     int Score = 0;
     int Total = 0;
