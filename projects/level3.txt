@@ -1,0 +1,30 @@
+Which data structure uses FIFO principle?
+Stack
+Queue
+Tree
+Graph
+2
+Who developed the C programming language?
+Dennis Ritchie
+James Gosling
+Bjarne Stroustrup
+Ken Thompson
+1
+What does HTTP stand for?
+Hyper Text Transmission Protocol
+High Transfer Text Protocol
+Hyper Text Transfer Protocol
+Hyperlink Text Transfer Protocol
+3
+Which country has the highest number of time zones?
+USA
+Russia
+France
+China
+3
+In binary, what does 1010 equal in decimal?
+8
+10
+12
+15
+2
