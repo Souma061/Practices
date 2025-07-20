@@ -6,6 +6,14 @@ struct Node{
   struct Node *next;
 };
 
+void traversal(struct Node *ptr) {
+  while(ptr != NULL){
+
+    printf("%d\n" , ptr->data);
+    ptr = ptr->next;
+  }
+}
+
 int main() {
   struct Node *head = (struct Node *)malloc(sizeof(struct Node));
   struct Node *second = (struct Node *)malloc(sizeof(struct Node));
@@ -19,18 +27,8 @@ int main() {
   second->next = third;
 
   third->data = 15;
-  third->next = fourth;
-
-  fourth->data = 1223;
-  fourth->next = NULL;
-
-  printf("Linked List: \n");
-  struct Node *current = head;
-  while (current != NULL) {
-    printf("%d -> ", current->data);
-    current = current->next;
-  }
-  printf("NULL\n");
+  third->next = NULL;
+  traversal(head);
 
   return 0;
 
