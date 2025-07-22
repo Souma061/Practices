@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Function declaration
+void clearInputBuffer();
+
 struct library
 {
   int ID;
@@ -25,8 +28,30 @@ void addBook()
   }
 
   printf("Enter Book ID: ");
-  scanf("%d", &book.ID);
-  getchar();
+  int newID;
+  scanf("%d", &newID);
+  clearInputBuffer();
+  // Step 2: Check if ID already exists
+  int exists = 0;
+  FILE *check = fopen("library.txt", "rb");
+  while (fread(&book, sizeof(book), 1, check))
+  {
+    if (book.ID == newID)
+    {
+      exists = 1;
+      break;
+    }
+  }
+  fclose(check);
+
+  if (exists)
+  {
+    printf("❌ Book with ID %d already exists.\n", newID);
+    fclose(fp);
+    return;
+  }
+
+  book.ID = newID;
 
   printf("Enter Book name: ");
   fgets(book.bookName, sizeof(book.bookName), stdin);
@@ -38,7 +63,15 @@ void addBook()
 
   printf("Enter Quantity: ");
   scanf("%d", &book.quantity);
-  getchar();
+  clearInputBuffer();
+
+  // ✅ Validation
+  if (book.ID < 0 || book.quantity < 0)
+  {
+    printf("❌ Invalid input! ID and quantity must be non-negative.\n");
+    fclose(fp); // close file before return
+    return;
+  }
 
   fwrite(&book, sizeof(book), 1, fp);
   fclose(fp);
@@ -183,7 +216,7 @@ void updateBook()
     {
       found = 1;
       printf("Enter new Book Name: ");
-      getchar();
+      clearInputBuffer(); // clear newline
       fgets(book.bookName, sizeof(book.bookName), stdin);
       book.bookName[strcspn(book.bookName, "\n")] = '\0';
 
@@ -193,7 +226,7 @@ void updateBook()
 
       printf("Enter new Quantity: ");
       scanf("%d", &book.quantity);
-      getchar();
+      clearInputBuffer();
       printf("Book with ID %d updated successfully.\n", updateID);
     }
     fwrite(&book, sizeof(book), 1, temp);
@@ -228,7 +261,7 @@ void menu()
     printf("6. Exit\n");
     printf("Enter your choice: ");
     scanf("%d", &choice);
-    getchar(); // clear newline
+    clearInputBuffer(); // clear newline
 
     switch (choice)
     {
@@ -255,6 +288,12 @@ void menu()
     }
 
   } while (choice != 6);
+}
+void clearInputBuffer()
+{
+  int c;
+  while ((c = getchar()) != '\n' && c != EOF)
+    ;
 }
 
 int main()
