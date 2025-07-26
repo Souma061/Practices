@@ -117,7 +117,6 @@ void viewAccounts()
     return;
   }
 
-
   printf("---------------------------------------------------------------\n");
 
   while (fread(&acc, sizeof(struct account), 1, fp))
@@ -132,29 +131,34 @@ void viewAccounts()
   fclose(fp);
 }
 
-void depositMoney() {
+void depositMoney()
+{
   int accNumber;
   float amount;
   int found = 0;
   struct account acc;
 
-  FILE *fp = fopen("accounts.dat" , "rb+");
-  if(fp == NULL) {
+  FILE *fp = fopen("accounts.dat", "rb+");
+  if (fp == NULL)
+  {
     printf("\033[1;31m❌ Error opening file.\033[0m\n");
     return;
   }
   printf("\033[1;32m=== Deposit Money ===\033[0m\n");
   printf("Enter account number: ");
-  scanf("%d" , &accNumber);
+  scanf("%d", &accNumber);
 
-  while(fread(&acc, sizeof(acc) , 1, fp)) {
-    if(acc.accountNumber == accNumber) {
-       printf(GREEN "✅ Account found: %s\n" RESET, acc.name);
+  while (fread(&acc, sizeof(acc), 1, fp))
+  {
+    if (acc.accountNumber == accNumber)
+    {
+      printf(GREEN "✅ Account found: %s\n" RESET, acc.name);
       printf("Current Balance: %.2f\n", acc.balance);
       printf("Enter ammount to deposit: ");
-      scanf("%f" , &amount);
+      scanf("%f", &amount);
 
-      if(amount <= 0) {
+      if (amount <= 0)
+      {
         printf(RED "❌ Invalid amount! Deposit amount must be positive.\n" RESET);
         fclose(fp);
         return;
@@ -162,72 +166,224 @@ void depositMoney() {
 
       acc.balance += amount;
       fseek(fp, -sizeof(acc), SEEK_CUR);
-      fwrite(&acc, sizeof(acc),1 , fp);
+      fwrite(&acc, sizeof(acc), 1, fp);
       printf(GREEN "✅ Deposit successful! New balance: %.2f\n" RESET, acc.balance);
       found = 1;
       break;
-
-
     }
   }
 
-  if(!found) {
+  if (!found)
+  {
     printf(RED "❌ Account not found.\n" RESET);
   }
   fclose(fp);
 }
 
-
-void withdrawMoney() {
+void withdrawMoney()
+{
   int accNumber;
   float amount;
   int found = 0;
   struct account acc;
 
-  FILE *fp = fopen("accounts.dat" , "rb+");
-  if(fp == NULL) {
+  FILE *fp = fopen("accounts.dat", "rb+");
+  if (fp == NULL)
+  {
     printf("\033[1;31m❌ Error opening file.\033[0m\n");
     return;
   }
 
   printf("\033[1;32m=== Withdraw Money ===\033[0m\n");
   printf("Enter account number: ");
-  scanf("%d" , &accNumber);
+  scanf("%d", &accNumber);
 
-  while(fread(&acc, sizeof(acc) , 1, fp)) {
-    if(acc.accountNumber == accNumber) {
+  while (fread(&acc, sizeof(acc), 1, fp))
+  {
+    if (acc.accountNumber == accNumber)
+    {
       printf(GREEN "✅ Account found: %s\n" RESET, acc.name);
       printf("Current Balance: %.2f\n", acc.balance);
       printf("Enter amount to withdraw: ");
       scanf("%f", &amount);
 
-      if(amount  <= 0 || amount > acc.balance) {
+      if (amount <= 0 || amount > acc.balance)
+      {
         printf(RED "❌ Invalid amount! Withdrawal amount must be positive and less than or equal to current balance.\n" RESET);
         fclose(fp);
         return;
       }
 
       acc.balance -= amount;
-      fseek(fp, -sizeof(acc) , SEEK_CUR);
+      fseek(fp, -sizeof(acc), SEEK_CUR);
       fwrite(&acc, sizeof(acc), 1, fp);
       printf(GREEN "✅ Withdrawal successful! New balance: %.2f\n" RESET, acc.balance);
       found = 1;
       break;
-
     }
   }
 
-  if(!found) {
+  if (!found)
+  {
     printf(RED "❌ Account not found.\n" RESET);
   }
   fclose(fp);
 }
 
+void searchAccount()
+{
+  int accNumber;
+  int found = 0;
+  struct account acc;
 
+  FILE *fp = fopen("accounts.dat", "rb");
+  if (fp == NULL)
+  {
+    printf("\033[1;31m❌ Error opening file.\033[0m\n");
+    return;
+  }
 
+  printf("\033[1;32m=== Search Account ===\033[0m\n");
+  printf("Enter your account number: ");
+  scanf("%d", &accNumber);
 
+  while (fread(&acc, sizeof(acc), 1, fp))
+  {
+    if (acc.accountNumber == accNumber)
+    {
+      printf(GREEN "✅ Account found:\n" RESET);
+      printf("Account Number: %d\n", acc.accountNumber);
+      printf("Name: %s\n", acc.name);
+      printf("Email: %s\n", acc.email);
+      printf("Phone: %s\n", acc.phone);
+      printf("Balance: %.2f\n", acc.balance);
+      found = 1;
+      break;
+    }
+  }
 
+  if (!found)
+  {
+    printf(RED "❌ Account not found.\n" RESET);
+  }
+  fclose(fp);
+}
 
+void deleteAccount()
+{
+  int accNumber;
+  int found = 0;
+  struct account acc;
+
+  FILE *fp = fopen("accounts.dat", "rb");
+  FILE *temp = fopen("temp.dat", "wb");
+  if (fp == NULL || temp == NULL)
+  {
+    printf(RED "❌ Error opening file.\n" RESET);
+    return;
+  }
+
+  printf(GREEN "=== Delete Account ===\n" RESET);
+  printf("Enter the account number to delete: ");
+  scanf("%d", &accNumber);
+
+  while (fread(&acc, sizeof(acc), 1, fp))
+  {
+    if (acc.accountNumber == accNumber)
+    {
+      printf(GREEN "✅ Account found: %s\n" RESET, acc.name);
+      printf("Are you sure you want to delete this account? (y/n): ");
+      char choice;
+      getchar(); // flush newline
+      scanf("%c", &choice);
+
+      if (choice == 'Y' || choice == 'y')
+      {
+        printf(GREEN "✅ Account deleted successfully.\n" RESET);
+        found = 1;
+        // Skip writing this record to temp — means deleted
+        continue;
+      }
+    }
+    // Write all other records, including when user chooses NOT to delete
+    fwrite(&acc, sizeof(acc), 1, temp);
+  }
+
+  fclose(fp);
+  fclose(temp);
+
+  if (found)
+  {
+    remove("accounts.dat");
+    rename("temp.dat", "accounts.dat");
+  }
+  else
+  {
+    remove("temp.dat");
+    printf(RED "❌ Account not found or deletion cancelled.\n" RESET);
+  }
+}
+
+void updateAccount()
+{
+  int accNumber;
+  int found = 0;
+  struct account acc;
+
+  FILE *fp = fopen("accounts.dat", "rb+");
+  if (fp == NULL)
+  {
+    printf("\033[1;31m❌ Error opening file.\033[0m\n");
+    return;
+  }
+  printf("\033[1;32m=== Update Account ===\033[0m\n");
+  printf("Enter account number to update: ");
+  scanf("%d", &accNumber);
+  getchar(); // clear newline
+
+  while (fread(&acc, sizeof(acc), 1, fp))
+  {
+    if (acc.accountNumber == accNumber)
+    {
+      found = 1;
+      printf(GREEN "✅ Account found: %s\n" RESET, acc.name);
+      printf("Current Balance: %.2f\n", acc.balance);
+      printf("Enter new Name: ");
+      fgets(acc.name, sizeof(acc.name), stdin);
+      acc.name[strcspn(acc.name, "\n")] = '\0';
+
+      printf("Enter new Email: ");
+      fgets(acc.email, sizeof(acc.email), stdin);
+      acc.email[strcspn(acc.email, "\n")] = '\0';
+
+      printf("Enter new Phone Number: ");
+      fgets(acc.phone, sizeof(acc.phone), stdin);
+      acc.phone[strcspn(acc.phone, "\n")] = '\0';
+
+      printf("Enter new Balance: ");
+      scanf("%f", &acc.balance);
+
+      if (acc.accountNumber <= 0 || acc.balance < 0)
+      {
+        printf(RED "❌ Invalid input! Account number and balance must be non-negative.\033[0m\n");
+        fclose(fp);
+        return;
+      }
+      fseek(fp, -sizeof(acc), SEEK_CUR);
+      fwrite(&acc, sizeof(acc), 1, fp);
+      printf(GREEN "✅ Account updated successfully!\n" RESET);
+      break;
+    }
+  }
+
+  if (!found)
+  {
+    printf(RED "❌ Account with number %d not found.\n" RESET, accNumber);
+  }
+  
+
+  fclose(fp);
+}
 
 void menu()
 {
@@ -251,13 +407,27 @@ void menu()
     case 1:
       createAccount();
       break;
-    case 2: viewAccounts(); break;
-    case 3: depositMoney(); break;
-    case 4: withdrawMoney(); break;
-    // case 5: searchAccount(); break;
-    // case 6: deleteAccount(); break;
-    // case 7: updateAccount(); break;
-    // case 8: printf("👋 Exiting. Goodbye!\n"); break;
+    case 2:
+      viewAccounts();
+      break;
+    case 3:
+      depositMoney();
+      break;
+    case 4:
+      withdrawMoney();
+      break;
+    case 5:
+      searchAccount();
+      break;
+    case 6:
+      deleteAccount();
+      break;
+    case 7:
+      updateAccount();
+      break;
+    case 8:
+      printf("👋 Exiting.");
+      break;
     default:
       printf("❌ Invalid choice.\n");
     }
