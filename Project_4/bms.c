@@ -380,7 +380,7 @@ void updateAccount()
   {
     printf(RED "❌ Account with number %d not found.\n" RESET, accNumber);
   }
-  
+
 
   fclose(fp);
 }
@@ -426,7 +426,7 @@ void menu()
       updateAccount();
       break;
     case 8:
-      printf("👋 Exiting.");
+      printf(CYAN "👋 Exiting program. Goodbye!\n" RESET);
       break;
     default:
       printf("❌ Invalid choice.\n");
