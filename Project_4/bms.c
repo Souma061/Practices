@@ -132,6 +132,101 @@ void viewAccounts()
   fclose(fp);
 }
 
+void depositMoney() {
+  int accNumber;
+  float amount;
+  int found = 0;
+  struct account acc;
+
+  FILE *fp = fopen("accounts.dat" , "rb+");
+  if(fp == NULL) {
+    printf("\033[1;31m❌ Error opening file.\033[0m\n");
+    return;
+  }
+  printf("\033[1;32m=== Deposit Money ===\033[0m\n");
+  printf("Enter account number: ");
+  scanf("%d" , &accNumber);
+
+  while(fread(&acc, sizeof(acc) , 1, fp)) {
+    if(acc.accountNumber == accNumber) {
+       printf(GREEN "✅ Account found: %s\n" RESET, acc.name);
+      printf("Current Balance: %.2f\n", acc.balance);
+      printf("Enter ammount to deposit: ");
+      scanf("%f" , &amount);
+
+      if(amount <= 0) {
+        printf(RED "❌ Invalid amount! Deposit amount must be positive.\n" RESET);
+        fclose(fp);
+        return;
+      }
+
+      acc.balance += amount;
+      fseek(fp, -sizeof(acc), SEEK_CUR);
+      fwrite(&acc, sizeof(acc),1 , fp);
+      printf(GREEN "✅ Deposit successful! New balance: %.2f\n" RESET, acc.balance);
+      found = 1;
+      break;
+
+
+    }
+  }
+
+  if(!found) {
+    printf(RED "❌ Account not found.\n" RESET);
+  }
+  fclose(fp);
+}
+
+
+void withdrawMoney() {
+  int accNumber;
+  float amount;
+  int found = 0;
+  struct account acc;
+
+  FILE *fp = fopen("accounts.dat" , "rb+");
+  if(fp == NULL) {
+    printf("\033[1;31m❌ Error opening file.\033[0m\n");
+    return;
+  }
+
+  printf("\033[1;32m=== Withdraw Money ===\033[0m\n");
+  printf("Enter account number: ");
+  scanf("%d" , &accNumber);
+
+  while(fread(&acc, sizeof(acc) , 1, fp)) {
+    if(acc.accountNumber == accNumber) {
+      printf(GREEN "✅ Account found: %s\n" RESET, acc.name);
+      printf("Current Balance: %.2f\n", acc.balance);
+      printf("Enter amount to withdraw: ");
+      scanf("%f", &amount);
+
+      if(amount  <= 0 || amount > acc.balance) {
+        printf(RED "❌ Invalid amount! Withdrawal amount must be positive and less than or equal to current balance.\n" RESET);
+        fclose(fp);
+        return;
+      }
+
+      acc.balance -= amount;
+      fseek(fp, -sizeof(acc) , SEEK_CUR);
+      fwrite(&acc, sizeof(acc), 1, fp);
+      printf(GREEN "✅ Withdrawal successful! New balance: %.2f\n" RESET, acc.balance);
+      found = 1;
+      break;
+
+    }
+  }
+
+  if(!found) {
+    printf(RED "❌ Account not found.\n" RESET);
+  }
+  fclose(fp);
+}
+
+
+
+
+
 
 
 void menu()
@@ -157,8 +252,8 @@ void menu()
       createAccount();
       break;
     case 2: viewAccounts(); break;
-    // case 3: deposit(); break;
-    // case 4: withdraw(); break;
+    case 3: depositMoney(); break;
+    case 4: withdrawMoney(); break;
     // case 5: searchAccount(); break;
     // case 6: deleteAccount(); break;
     // case 7: updateAccount(); break;
