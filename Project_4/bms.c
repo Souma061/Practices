@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<termios.h>
+#include<unistd.h>
+
+#define ADMIN_PASS "admin123"
 
 #define RESET "\033[0m"
 #define RED "\033[1;31m"
@@ -23,6 +27,59 @@
 // updateAccount()
 // file I/O helpers
 // main()
+
+
+void getPassword(char *password, int maxLen) {
+    struct termios oldt, newt;
+    int i = 0;
+    char ch;
+
+    // Turn off echoing
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ECHO); // Disable echo
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+
+    printf("🔐 Enter admin password: ");
+    fflush(stdout);
+
+    while (i < maxLen - 1) {
+        ch = getchar();
+        if (ch == '\n') break;
+        if (ch == 127 || ch == '\b') { // Handle backspace
+            if (i > 0) {
+                i--;
+                printf("\b \b");
+                fflush(stdout);
+            }
+        } else {
+            password[i++] = ch;
+            printf("*");
+            fflush(stdout);
+        }
+    }
+    password[i] = '\0';
+
+    // Restore echoing
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    printf("\n");
+}
+int verifyAdminPassword() {
+    char input[50];
+
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);  // Clear buffer
+
+    getPassword(input, sizeof(input));
+
+    if (strcmp(input, ADMIN_PASS) == 0) {
+        printf(GREEN "✅ Access granted.\n" RESET);
+        return 1;
+    } else {
+        printf(RED "❌ Incorrect password.\n" RESET);
+        return 0;
+    }
+}
 
 struct account
 {
@@ -271,6 +328,9 @@ void searchAccount()
 
 void deleteAccount()
 {
+  if(!verifyAdminPassword()) {
+    return;
+  }
   int accNumber;
   int found = 0;
   struct account acc;
