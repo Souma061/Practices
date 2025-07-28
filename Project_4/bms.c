@@ -42,6 +42,8 @@ void getPassword(char *password, int maxLen) {
 
     printf("🔐 Enter admin password: ");
     fflush(stdout);
+    
+
 
     while (i < maxLen - 1) {
         ch = getchar();
