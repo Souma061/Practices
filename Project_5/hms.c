@@ -112,6 +112,101 @@ void viewAllPatients()
   fclose(fp);
 }
 
+void searchByID()
+{
+  int id;
+  struct patient p;
+  int found = 0;
+
+  FILE *fp = fopen("patients.dat", "rb");
+  if (fp == NULL)
+  {
+    printf("Error opening file!\n");
+    return;
+  }
+
+  printf("=== Search Account ===\n");
+  printf("Enter patient ID to search: ");
+  scanf("%d", &id);
+  getchar(); // to consume newline character left by scanf
+
+  while (fread(&p, sizeof(p), 1, fp))
+  {
+    if (p.id == id)
+    {
+      printf("Patient ID: %d\n", p.id);
+      printf("Name: %s\n", p.name);
+      printf("Age: %d\n", p.age);
+      printf("Gender: %s\n", p.gender);
+      printf("Disease: %s\n", p.disease);
+      printf("Contact: %s\n", p.contact);
+      printf("Admitted Date: %s\n", p.admittedDate);
+      found = 1;
+      break;
+    }
+  }
+
+  if (!found)
+  {
+    printf("Patient with ID %d not found.\n", id);
+  }
+
+  fclose(fp);
+}
+
+void deletePatientRecord()
+{
+  int id;
+  struct patient p;
+  int found = 0;
+
+  FILE *fp = fopen("patients.dat", "rb");
+  FILE *temp = fopen("temp.dat", "wb");
+
+  if (fp == NULL || temp == NULL)
+  {
+    printf("Error opening file!\n");
+    return;
+  }
+  printf("Enter patient ID to delete: ");
+  scanf("%d", &id);
+  getchar(); // to consume newline character left by scanf
+  while (fread(&p, sizeof(p), 1, fp))
+  {
+    if (p.id == id)
+    {
+      printf("Account with ID %d found. Deleting...\n", id);
+      printf("Are you sure you want to delete this record? (y/n): ");
+      char choice;
+      scanf(" %c", &choice);
+      if (choice == 'Y' || choice == 'y')
+      {
+        printf("Record deleted successfully.\n");
+        found = 1;
+        continue;
+      }
+    }
+    fwrite(&p, sizeof(p), 1, temp);
+  }
+  fclose(fp);
+  fclose(temp);
+
+  if (found)
+  {
+    remove("patients.dat");
+    rename("temp.dat", "patients.dat");
+  }
+  else
+  {
+    remove("temp.dat");
+    printf("Record not found.\n");
+  }
+}
+
+void updatepatientInfo() {
+  
+}
+
 void menu()
 {
   int choice;
@@ -140,9 +235,11 @@ void menu()
       break;
     case 3:
       // searchPatientByID(); // Function to be implemented
+      searchByID();
       break;
     case 4:
       // deletePatientRecord(); // Function to be implemented
+      deletePatientRecord();
       break;
     case 5:
       // updatePatientInfo(); // Function to be implemented
