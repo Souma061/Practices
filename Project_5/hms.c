@@ -240,7 +240,7 @@ void updatepatientInfo()
   FILE *fp = fopen("patients.dat","rb+");
   if(fp == NULL) {
     printf("Error opening file!\n");
-    return 0;
+    return ;
   }
   printf("Enter patient ID to update: ");
   scanf("%d" , &id);
