@@ -1,20 +1,6 @@
 // Hospital Management System (HMS) in C
 
-/*
-1. Modules to Include
-Add Patient Record
 
-View All Patients
-
-Search Patient by ID
-
-Delete Patient Record
-
-Update Patient Info
-
-Discharge Patient
-
-Exit Program*/
 
 #include <stdio.h>
 #include <stdlib.h>
