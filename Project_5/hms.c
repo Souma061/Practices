@@ -203,8 +203,8 @@ void deletePatientRecord()
   }
 }
 
-void updatepatientInfo() {
-  
+void updatepatientInfo()
+{
 }
 
 void menu()
