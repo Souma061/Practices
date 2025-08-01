@@ -205,6 +205,141 @@ void deletePatientRecord()
 
 void updatepatientInfo()
 {
+  struct patient p;
+  int id;
+  int found = 0;
+
+  FILE *fp = fopen("patients.dat","rb+");
+  if(fp == NULL) {
+    printf("Error opening file!\n");
+    return 0;
+  }
+  printf("Enter patient ID to update: ");
+  scanf("%d" , &id);
+  getchar() ;
+
+  while(fread(&p, sizeof(p), 1, fp)) {
+    if(p.id == id) {
+      found = 1;
+      printf("Patient ID: %d\n" , p.id);
+      printf("Current Name: %s\n", p.name);
+      printf("Enter new Name: ");
+      fgets(p.name, sizeof(p.name), stdin);
+      p.name[strcspn(p.name, "\n")] = '\0';
+
+      printf("Current Age: %d\n", p.age);
+      printf("Enter new Age: ");
+      scanf("%d", &p.age);
+      getchar(); // to consume newline character left by scanf
+
+      printf("Current Gender: %s\n", p.gender);
+      printf("Enter new gender: ");
+      fgets(p.gender, sizeof(p.gender) , stdin);
+      p.gender[strcspn(p.gender, "\n")] = '\0';
+
+      printf("Current Disease: %s\n", p.disease);
+      printf("Enter new Disease: ");
+      fgets(p.disease, sizeof(p.disease) , stdin);
+      p.disease[strcspn(p.disease, "\n")] = '\0';
+
+      printf("Current Contact: %s\n", p.contact);
+      printf("Enter new Contact: ");
+      fgets(p.contact, sizeof(p.contact) , stdin);
+      p.contact[strcspn(p.contact, "\n")] = '\0';
+
+      printf("Current Admitted Date: %s\n", p.admittedDate);
+      printf("Enter new Admitted Date: ");
+      fgets(p.admittedDate, sizeof(p.admittedDate) , stdin);
+      p.admittedDate[strcspn(p.admittedDate, "\n")] = '\0';
+
+      if(p.id <= 0) {
+        printf("Invalid input! ID must be positive.\n");
+        fclose(fp);
+        return;
+      }
+
+      fseek(fp, -sizeof(p), SEEK_CUR);
+      fwrite(&p, sizeof(p), 1, fp);
+      printf("Patient record updated successfully!\n");
+      break;
+
+
+    }
+  }
+
+  if(!found) {
+    printf("Patient with ID %d not found.\n", id);
+  }
+
+  fclose(fp);
+}
+
+void dischargePatient() {
+  int id;
+  struct patient p;
+  int found = 0;
+  char dischargeDate[20];
+  char prescription[200];
+
+  FILE *fp = fopen("patients.dat" , "rb");
+  FILE *temp = fopen("temp.dat", "wb");
+
+  if(fp == NULL || temp == NULL) {
+    printf("Error opening file!\n");
+    return;
+  }
+
+  printf("\033[1;32m=== Discharge Patient ===\033[0m\n");
+  printf("Enter patient ID to discharge: ");
+  scanf("%d", &id);
+  getchar(); // to consume newline character left by scanf
+
+  while(fread(&p, sizeof(p), 1, fp)) {
+    if(p.id == id) {
+      found = 1;
+
+          printf("\n--- Patient Found ---\n");
+            printf("Patient ID: %d\n", p.id);
+            printf("Name: %s\n", p.name);
+            printf("Age: %d\n", p.age);
+            printf("Disease: %s\n", p.disease);
+            printf("Admitted Date: %s\n", p.admittedDate);
+
+      printf("\nConfirm to discharge this patient? (y/n): ");
+      char choice;
+      scanf(" %c", &choice);
+      getchar();
+      if(choice == 'y' || choice == 'Y') {
+        printf("Enter discharge date (DD/MM/YYYY): ");
+                fgets(dischargeDate, sizeof(dischargeDate), stdin);
+                dischargeDate[strcspn(dischargeDate, "\n")] = '\0';
+        printf("Enter prescription details: ");
+        fgets(prescription, sizeof(prescription), stdin);
+        prescription[strcspn(prescription, "\n")] = '\0';
+
+
+        printf("Patient %s discharged successfully on %s.\n", p.name, dischargeDate);
+        printf("Prescription: %s\n", prescription);
+
+        continue;
+
+      } else {
+        printf("Discharge cancelled for patient ID %d.\n", id);
+      }
+
+    }
+    fwrite(&p, sizeof(p), 1 , temp);
+  }
+  fclose(fp);
+  fclose(temp);
+
+  if(found) {
+    remove("patients.dat");
+    rename("temp.dat", "patients.dat");
+  } else {
+    remove("temp.dat");
+    printf("Patient with ID %d not found.\n", id);
+  }
 }
 
 void menu()
@@ -243,9 +378,11 @@ void menu()
       break;
     case 5:
       // updatePatientInfo(); // Function to be implemented
+      updatepatientInfo();
       break;
     case 6:
       // dischargePatient(); // Function to be implemented
+      dischargePatient();
       break;
     case 7:
       printf("Exiting program...\n");
