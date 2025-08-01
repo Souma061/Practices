@@ -31,6 +31,23 @@ struct patient
   char admittedDate[20];
 };
 
+int idExists(int id){
+  struct patient p;
+  FILE *fp = fopen("patients.dat" , "rb");
+  if(fp == NULL) {
+    printf("Error opening file!\n");
+    return 0;
+  }
+  while(fread(&p, sizeof(p), 1, fp)) {
+    if(p.id == id) {
+      fclose(fp);
+      return 1; // ID exists
+    }
+  }
+  fclose(fp);
+  return 0; // ID does not exist
+}
+
 void addPatient()
 {
   struct patient p;
@@ -40,38 +57,49 @@ void addPatient()
     printf("Error opening file!\n");
     return;
   }
+  do {
+    printf("Enter Patient ID: ");
+    scanf("%d", &p.id);
+    getchar();
 
-  printf("Enter patient ID: ");
-  scanf("%d", &p.id);
-  getchar(); // to consume newline character left by scanf
+    if(p.id <= 0) {
+      printf("Invalid input! ID must be positive.\n");
+      continue;
+    }
+    if(idExists(p.id)) {
+      printf("Patient with ID %d already exists. Please enter a unique ID.\n", p.id);
+    } else {
+      break;
+    }
+  } while(1);
 
-  printf("Enter patient Name: ");
-  fgets(p.name, sizeof(p.name), stdin);
-  p.name[strcspn(p.name, "\n")] = '\0';
+   printf("Enter patient Name: ");
+    fgets(p.name, sizeof(p.name), stdin);
+    p.name[strcspn(p.name, "\n")] = '\0';
 
-  printf("Enter patient age: ");
-  scanf("%d", &p.age);
-  getchar(); // to consume newline character left by scanf
+    printf("Enter patient age: ");
+    scanf("%d", &p.age);
+    getchar();
 
-  printf("Enter your Gender: ");
-  fgets(p.gender, sizeof(p.gender), stdin);
-  p.gender[strcspn(p.gender, "\n")] = '\0';
+    printf("Enter Gender: ");
+    fgets(p.gender, sizeof(p.gender), stdin);
+    p.gender[strcspn(p.gender, "\n")] = '\0';
 
-  printf("Enter the Disease: ");
-  fgets(p.disease, sizeof(p.disease), stdin);
-  p.disease[strcspn(p.disease, "\n")] = '\0';
+    printf("Enter the Disease: ");
+    fgets(p.disease, sizeof(p.disease), stdin);
+    p.disease[strcspn(p.disease, "\n")] = '\0';
 
-  printf("Enter Contact Number: ");
-  fgets(p.contact, sizeof(p.contact), stdin);
-  p.contact[strcspn(p.contact, "\n")] = '\0';
+    printf("Enter Contact Number: ");
+    fgets(p.contact, sizeof(p.contact), stdin);
+    p.contact[strcspn(p.contact, "\n")] = '\0';
 
-  printf("Enter Admitted Date (DD/MM/YYYY): ");
-  fgets(p.admittedDate, sizeof(p.admittedDate), stdin);
-  p.admittedDate[strcspn(p.admittedDate, "\n")] = '\0';
+    printf("Enter Admitted Date (DD/MM/YYYY): ");
+    fgets(p.admittedDate, sizeof(p.admittedDate), stdin);
+    p.admittedDate[strcspn(p.admittedDate, "\n")] = '\0';
 
-  fwrite(&p, sizeof(p), 1, fp);
-  fclose(fp);
-  printf("Patient record added successfully!\n");
+    fwrite(&p, sizeof(p), 1, fp);
+    fclose(fp);
+    printf("✅ Patient record added successfully!\n");
 }
 
 void viewAllPatients()
