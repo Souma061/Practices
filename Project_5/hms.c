@@ -19,6 +19,7 @@ Exit Program*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<ctype.h>
 
 struct patient
 {
@@ -67,6 +68,33 @@ int idExists(int id)
   return 0; // ID does not exist
 }
 
+int isValidAge(int age) {
+  return (age > 0 && age < 120);
+}
+
+int isValidContact(const char *contact) {
+  if(strlen(contact) != 10) {
+    return 0;
+  }
+  for(int i = 0; contact[i] != '\0'; i++) {
+    if(!isdigit(contact[i])) {
+      return 0; // Contact must be numeric
+    }
+  }
+  return 1; // Valid contact
+}
+
+int isValidDate(const char *date) {
+  int day, month, year;
+  if(sscanf(date, "%d/%d/%d", &day, &month, &year) != 3) {
+    return 0;
+  }
+  if(day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+    return 0;
+  }
+  return 1; // Valid date
+}
+
 void addPatient()
 {
   struct patient p;
@@ -101,9 +129,15 @@ void addPatient()
   fgets(p.name, sizeof(p.name), stdin);
   p.name[strcspn(p.name, "\n")] = '\0';
 
-  printf("Enter patient age: ");
-  scanf("%d", &p.age);
-  getchar();
+  do {
+    printf("Enter patient age: ");
+    scanf("%d", &p.age);
+    getchar();
+    if(!isValidAge(p.age)) {
+      printf("Invalid age! Please enter a valid age (1-119).\n");
+
+    }
+  } while (!isValidAge(p.age));
 
   printf("Enter Gender: ");
   fgets(p.gender, sizeof(p.gender), stdin);
@@ -113,13 +147,24 @@ void addPatient()
   fgets(p.disease, sizeof(p.disease), stdin);
   p.disease[strcspn(p.disease, "\n")] = '\0';
 
-  printf("Enter Contact Number: ");
+ do {
+  printf("Enter your contact number (10 digits): ");
   fgets(p.contact, sizeof(p.contact), stdin);
   p.contact[strcspn(p.contact, "\n")] = '\0';
 
+  if(!isValidContact(p.contact)) {
+    printf("Invalid contact number! Please enter a valid 10-digit number.\n");
+  }
+} while (!isValidContact(p.contact));
+
+do {
   printf("Enter Admitted Date (DD/MM/YYYY): ");
   fgets(p.admittedDate, sizeof(p.admittedDate), stdin);
   p.admittedDate[strcspn(p.admittedDate, "\n")] = '\0';
+  if(!isValidDate(p.admittedDate)) {
+    printf("Invalid date format! Please enter a valid date (DD/MM/YYYY).\n");
+  }
+} while (!isValidDate(p.admittedDate));
 
   fwrite(&p, sizeof(p), 1, fp);
   fclose(fp);
@@ -255,79 +300,97 @@ void deletePatientRecord()
   }
 }
 
-void updatepatientInfo()
-{
-  struct patient p;
-  int id;
-  int found = 0;
+void updatepatientInfo() {
+    struct patient p;
+    int id, found = 0, choice;
 
-  FILE *fp = fopen("patients.dat", "rb+");
-  if (fp == NULL)
-  {
-    printf("Error opening file!\n");
-    return;
-  }
-  printf("Enter patient ID to update: ");
-  scanf("%d", &id);
-  getchar();
-
-  while (fread(&p, sizeof(p), 1, fp))
-  {
-    if (p.id == id)
-    {
-      found = 1;
-      printf("Patient ID: %d\n", p.id);
-      printf("Current Name: %s\n", p.name);
-      printf("Enter new Name: ");
-      fgets(p.name, sizeof(p.name), stdin);
-      p.name[strcspn(p.name, "\n")] = '\0';
-
-      printf("Current Age: %d\n", p.age);
-      printf("Enter new Age: ");
-      scanf("%d", &p.age);
-      getchar(); // to consume newline character left by scanf
-
-      printf("Current Gender: %s\n", p.gender);
-      printf("Enter new gender: ");
-      fgets(p.gender, sizeof(p.gender), stdin);
-      p.gender[strcspn(p.gender, "\n")] = '\0';
-
-      printf("Current Disease: %s\n", p.disease);
-      printf("Enter new Disease: ");
-      fgets(p.disease, sizeof(p.disease), stdin);
-      p.disease[strcspn(p.disease, "\n")] = '\0';
-
-      printf("Current Contact: %s\n", p.contact);
-      printf("Enter new Contact: ");
-      fgets(p.contact, sizeof(p.contact), stdin);
-      p.contact[strcspn(p.contact, "\n")] = '\0';
-
-      printf("Current Admitted Date: %s\n", p.admittedDate);
-      printf("Enter new Admitted Date: ");
-      fgets(p.admittedDate, sizeof(p.admittedDate), stdin);
-      p.admittedDate[strcspn(p.admittedDate, "\n")] = '\0';
-
-      if (p.id <= 0)
-      {
-        printf("Invalid input! ID must be positive.\n");
-        fclose(fp);
+    FILE *fp = fopen("patients.dat", "rb+");
+    if (!fp) {
+        printf("Error opening file!\n");
         return;
-      }
-
-      fseek(fp, -sizeof(p), SEEK_CUR);
-      fwrite(&p, sizeof(p), 1, fp);
-      printf("Patient record updated successfully!\n");
-      break;
     }
-  }
 
-  if (!found)
-  {
-    printf("Patient with ID %d not found.\n", id);
-  }
+    printf("Enter patient ID to update: ");
+    scanf("%d", &id);
+    getchar();
 
-  fclose(fp);
+    while (fread(&p, sizeof(p), 1, fp)) {
+        if (p.id == id) {
+            found = 1;
+            printf("\n--- Current Patient Info ---\n");
+            printf("Name: %s\n", p.name);
+            printf("Age: %d\n", p.age);
+            printf("Gender: %s\n", p.gender);
+            printf("Disease: %s\n", p.disease);
+            printf("Contact: %s\n", p.contact);
+            printf("Admitted Date: %s\n", p.admittedDate);
+
+            printf("\nWhich field do you want to update?\n");
+            printf("1. Name\n2. Age\n3. Gender\n4. Disease\n5. Contact\n6. Admitted Date\n");
+            printf("Enter choice: ");
+            scanf("%d", &choice);
+            getchar();
+
+            switch (choice) {
+                case 1:
+                    printf("Enter new Name: ");
+                    fgets(p.name, sizeof(p.name), stdin);
+                    p.name[strcspn(p.name, "\n")] = '\0';
+                    break;
+                case 2:
+                    do {
+                        printf("Enter new Age: ");
+                        scanf("%d", &p.age);
+                        getchar();
+                        if (!isValidAge(p.age))
+                            printf("❌ Invalid age!\n");
+                    } while (!isValidAge(p.age));
+                    break;
+                case 3:
+                    printf("Enter new Gender: ");
+                    fgets(p.gender, sizeof(p.gender), stdin);
+                    p.gender[strcspn(p.gender, "\n")] = '\0';
+                    break;
+                case 4:
+                    printf("Enter new Disease: ");
+                    fgets(p.disease, sizeof(p.disease), stdin);
+                    p.disease[strcspn(p.disease, "\n")] = '\0';
+                    break;
+                case 5:
+                    do {
+                        printf("Enter new Contact: ");
+                        fgets(p.contact, sizeof(p.contact), stdin);
+                        p.contact[strcspn(p.contact, "\n")] = '\0';
+                        if (!isValidContact(p.contact))
+                            printf("❌ Invalid contact number!\n");
+                    } while (!isValidContact(p.contact));
+                    break;
+                case 6:
+                    do {
+                        printf("Enter new Admitted Date (DD/MM/YYYY): ");
+                        fgets(p.admittedDate, sizeof(p.admittedDate), stdin);
+                        p.admittedDate[strcspn(p.admittedDate, "\n")] = '\0';
+                        if (!isValidDate(p.admittedDate))
+                            printf("❌ Invalid date format!\n");
+                    } while (!isValidDate(p.admittedDate));
+                    break;
+                default:
+                    printf("Invalid choice!\n");
+            }
+
+            fseek(fp, -sizeof(p), SEEK_CUR);
+            fwrite(&p, sizeof(p), 1, fp);
+            printf("✅ Patient info updated successfully!\n");
+            break;
+        }
+    }
+
+    if (!found)
+        printf("❌ Patient with ID %d not found.\n", id);
+
+    fclose(fp);
 }
+
 
 void dischargePatient()
 {
