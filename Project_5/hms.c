@@ -33,20 +33,7 @@ struct patient
   char prescription[200];
 };
 
-struct dischargePatient
-{
-  int id;
-  char name[50];
-  int age;
-  char gender[10];
-  char disease[100];
-  char contact[15];
-  char admittedDate[20];
-  char dischargeDate[20];
-  char prescription[200];
-};
-
-struct dischargePatient
+struct dischargedPatient
 {
   int id;
   char name[50];
@@ -346,7 +333,7 @@ void dischargePatient()
 {
   int id;
   struct patient p;
-  struct dischargePatient dp;
+  struct dischargedPatient dp;
   int found = 0;
   char dischargeDate[20];
   char prescription[200];
@@ -361,11 +348,11 @@ void dischargePatient()
     return;
   }
   printf("\033[1;32m=== Discharge Patient ===\033[0m\n");
-  printf("Enter patint ID to discharge: ");
+  printf("Enter patient ID to discharge: ");
   scanf("%d", &id);
   getchar();
 
-  while (fread(&p, sizeof(p) ,1, fp))
+  while (fread(&p, sizeof(p), 1, fp))
   {
     if (p.id == id)
     {
@@ -433,7 +420,7 @@ void dischargePatient()
 
 void viewDischargedPatients()
 {
-  struct dischargePatient dp;
+  struct dischargedPatient dp;
   printf("\033[1;34m=== Discharged Patients List ===\033[0m\n");
 
   FILE *fp = fopen("discharged_patients.dat", "rb");
@@ -481,7 +468,7 @@ void menu()
     printf("5. Update Patient Info\n");
     printf("6. Discharge Patient\n");
     printf("7. View Discharged Patients\n");
-    printf("8. Exitting Program\n");
+    printf("8. Exit Program\n");
     printf("Enter your choice: ");
     scanf("%d", &choice);
     getchar(); // to consume newline character left by scanf
