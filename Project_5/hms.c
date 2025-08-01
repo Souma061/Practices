@@ -29,17 +29,49 @@ struct patient
   char disease[100];
   char contact[15];
   char admittedDate[20];
+  char dischargeDate[20];
+  char prescription[200];
 };
 
-int idExists(int id){
+struct dischargePatient
+{
+  int id;
+  char name[50];
+  int age;
+  char gender[10];
+  char disease[100];
+  char contact[15];
+  char admittedDate[20];
+  char dischargeDate[20];
+  char prescription[200];
+};
+
+struct dischargePatient
+{
+  int id;
+  char name[50];
+  int age;
+  char gender[10];
+  char disease[100];
+  char contact[15];
+  char admittedDate[20];
+  char dischargeDate[20];
+  char prescription[200];
+};
+
+int idExists(int id)
+{
   struct patient p;
-  FILE *fp = fopen("patients.dat" , "rb");
-  if(fp == NULL) {
+  FILE *fp = fopen("patients.dat", "rb");
+  if (fp == NULL)
+  {
     printf("Error opening file!\n");
     return 0;
   }
-  while(fread(&p, sizeof(p), 1, fp)) {
-    if(p.id == id) {
+  while (fread(&p, sizeof(p), 1, fp))
+  {
+    if (p.id == id)
+    {
       fclose(fp);
       return 1; // ID exists
     }
@@ -57,49 +89,54 @@ void addPatient()
     printf("Error opening file!\n");
     return;
   }
-  do {
+  do
+  {
     printf("Enter Patient ID: ");
     scanf("%d", &p.id);
     getchar();
 
-    if(p.id <= 0) {
+    if (p.id <= 0)
+    {
       printf("Invalid input! ID must be positive.\n");
       continue;
     }
-    if(idExists(p.id)) {
+    if (idExists(p.id))
+    {
       printf("Patient with ID %d already exists. Please enter a unique ID.\n", p.id);
-    } else {
+    }
+    else
+    {
       break;
     }
-  } while(1);
+  } while (1);
 
-   printf("Enter patient Name: ");
-    fgets(p.name, sizeof(p.name), stdin);
-    p.name[strcspn(p.name, "\n")] = '\0';
+  printf("Enter patient Name: ");
+  fgets(p.name, sizeof(p.name), stdin);
+  p.name[strcspn(p.name, "\n")] = '\0';
 
-    printf("Enter patient age: ");
-    scanf("%d", &p.age);
-    getchar();
+  printf("Enter patient age: ");
+  scanf("%d", &p.age);
+  getchar();
 
-    printf("Enter Gender: ");
-    fgets(p.gender, sizeof(p.gender), stdin);
-    p.gender[strcspn(p.gender, "\n")] = '\0';
+  printf("Enter Gender: ");
+  fgets(p.gender, sizeof(p.gender), stdin);
+  p.gender[strcspn(p.gender, "\n")] = '\0';
 
-    printf("Enter the Disease: ");
-    fgets(p.disease, sizeof(p.disease), stdin);
-    p.disease[strcspn(p.disease, "\n")] = '\0';
+  printf("Enter the Disease: ");
+  fgets(p.disease, sizeof(p.disease), stdin);
+  p.disease[strcspn(p.disease, "\n")] = '\0';
 
-    printf("Enter Contact Number: ");
-    fgets(p.contact, sizeof(p.contact), stdin);
-    p.contact[strcspn(p.contact, "\n")] = '\0';
+  printf("Enter Contact Number: ");
+  fgets(p.contact, sizeof(p.contact), stdin);
+  p.contact[strcspn(p.contact, "\n")] = '\0';
 
-    printf("Enter Admitted Date (DD/MM/YYYY): ");
-    fgets(p.admittedDate, sizeof(p.admittedDate), stdin);
-    p.admittedDate[strcspn(p.admittedDate, "\n")] = '\0';
+  printf("Enter Admitted Date (DD/MM/YYYY): ");
+  fgets(p.admittedDate, sizeof(p.admittedDate), stdin);
+  p.admittedDate[strcspn(p.admittedDate, "\n")] = '\0';
 
-    fwrite(&p, sizeof(p), 1, fp);
-    fclose(fp);
-    printf("✅ Patient record added successfully!\n");
+  fwrite(&p, sizeof(p), 1, fp);
+  fclose(fp);
+  printf("✅ Patient record added successfully!\n");
 }
 
 void viewAllPatients()
@@ -237,19 +274,22 @@ void updatepatientInfo()
   int id;
   int found = 0;
 
-  FILE *fp = fopen("patients.dat","rb+");
-  if(fp == NULL) {
+  FILE *fp = fopen("patients.dat", "rb+");
+  if (fp == NULL)
+  {
     printf("Error opening file!\n");
-    return ;
+    return;
   }
   printf("Enter patient ID to update: ");
-  scanf("%d" , &id);
-  getchar() ;
+  scanf("%d", &id);
+  getchar();
 
-  while(fread(&p, sizeof(p), 1, fp)) {
-    if(p.id == id) {
+  while (fread(&p, sizeof(p), 1, fp))
+  {
+    if (p.id == id)
+    {
       found = 1;
-      printf("Patient ID: %d\n" , p.id);
+      printf("Patient ID: %d\n", p.id);
       printf("Current Name: %s\n", p.name);
       printf("Enter new Name: ");
       fgets(p.name, sizeof(p.name), stdin);
@@ -262,25 +302,26 @@ void updatepatientInfo()
 
       printf("Current Gender: %s\n", p.gender);
       printf("Enter new gender: ");
-      fgets(p.gender, sizeof(p.gender) , stdin);
+      fgets(p.gender, sizeof(p.gender), stdin);
       p.gender[strcspn(p.gender, "\n")] = '\0';
 
       printf("Current Disease: %s\n", p.disease);
       printf("Enter new Disease: ");
-      fgets(p.disease, sizeof(p.disease) , stdin);
+      fgets(p.disease, sizeof(p.disease), stdin);
       p.disease[strcspn(p.disease, "\n")] = '\0';
 
       printf("Current Contact: %s\n", p.contact);
       printf("Enter new Contact: ");
-      fgets(p.contact, sizeof(p.contact) , stdin);
+      fgets(p.contact, sizeof(p.contact), stdin);
       p.contact[strcspn(p.contact, "\n")] = '\0';
 
       printf("Current Admitted Date: %s\n", p.admittedDate);
       printf("Enter new Admitted Date: ");
-      fgets(p.admittedDate, sizeof(p.admittedDate) , stdin);
+      fgets(p.admittedDate, sizeof(p.admittedDate), stdin);
       p.admittedDate[strcspn(p.admittedDate, "\n")] = '\0';
 
-      if(p.id <= 0) {
+      if (p.id <= 0)
+      {
         printf("Invalid input! ID must be positive.\n");
         fclose(fp);
         return;
@@ -290,84 +331,141 @@ void updatepatientInfo()
       fwrite(&p, sizeof(p), 1, fp);
       printf("Patient record updated successfully!\n");
       break;
-
-
     }
   }
 
-  if(!found) {
+  if (!found)
+  {
     printf("Patient with ID %d not found.\n", id);
   }
 
   fclose(fp);
 }
 
-void dischargePatient() {
+void dischargePatient()
+{
   int id;
   struct patient p;
+  struct dischargePatient dp;
   int found = 0;
   char dischargeDate[20];
   char prescription[200];
 
-  FILE *fp = fopen("patients.dat" , "rb");
+  FILE *fp = fopen("patients.dat", "rb");
   FILE *temp = fopen("temp.dat", "wb");
+  FILE *discharged = fopen("discharged_patients.dat", "ab");
 
-  if(fp == NULL || temp == NULL) {
+  if (fp == NULL || temp == NULL || discharged == NULL)
+  {
     printf("Error opening file!\n");
     return;
   }
-
   printf("\033[1;32m=== Discharge Patient ===\033[0m\n");
-  printf("Enter patient ID to discharge: ");
+  printf("Enter patint ID to discharge: ");
   scanf("%d", &id);
-  getchar(); // to consume newline character left by scanf
+  getchar();
 
-  while(fread(&p, sizeof(p), 1, fp)) {
-    if(p.id == id) {
+  while (fread(&p, sizeof(p) .1, fp))
+  {
+    if (p.id == id)
+    {
       found = 1;
+      printf("\n--- Patient Found ---\n");
+      printf("Patient ID: %d\n", p.id);
+      printf("Name: %s\n", p.name);
+      printf("Age: %d\n", p.age);
+      printf("Disease: %s\n", p.disease);
+      printf("Admitted Date: %s\n", p.admittedDate);
 
-          printf("\n--- Patient Found ---\n");
-            printf("Patient ID: %d\n", p.id);
-            printf("Name: %s\n", p.name);
-            printf("Age: %d\n", p.age);
-            printf("Disease: %s\n", p.disease);
-            printf("Admitted Date: %s\n", p.admittedDate);
-
-      printf("\nConfirm to discharge this patient? (y/n): ");
+      printf("Confirm discharge? (y/n): ");
       char choice;
       scanf(" %c", &choice);
       getchar();
-      if(choice == 'y' || choice == 'Y') {
-        printf("Enter discharge date (DD/MM/YYYY): ");
-                fgets(dischargeDate, sizeof(dischargeDate), stdin);
-                dischargeDate[strcspn(dischargeDate, "\n")] = '\0';
-        printf("Enter prescription details: ");
+      if (choice == 'Y' || choice == 'y')
+      {
+        printf("Enter Discharge Date (DD/MM/YYYY): ");
+        fgets(dischargeDate, sizeof(dischargeDate), stdin);
+        dischargeDate[strcspn(dischargeDate, "\n")] = '\0';
+
+        printf("Enter Prescription: ");
         fgets(prescription, sizeof(prescription), stdin);
         prescription[strcspn(prescription, "\n")] = '\0';
 
+        dp.id = p.id;
+        strcpy(dp.name, p.name);
+        dp.age = p.age;
+        strcpy(dp.gender, p.gender);
+        strcpy(dp.disease, p.disease);
+        strcpy(dp.contact, p.contact);
+        strcpy(dp.admittedDate, p.admittedDate);
+        strcpy(dp.dischargeDate, dischargeDate);
+        strcpy(dp.prescription, prescription);
 
-        printf("Patient %s discharged successfully on %s.\n", p.name, dischargeDate);
-        printf("Prescription: %s\n", prescription);
+        fwrite(&dp, sizeof(dp), 1, discharged);
 
+        printf("\n✅ Patient %s discharged successfully on %s!\n", p.name, dischargeDate);
+        printf("📝 Prescription: %s\n", prescription);
+        printf("📁 Record saved to discharged patients database.\n");
         continue;
-
-      } else {
-        printf("Discharge cancelled for patient ID %d.\n", id);
       }
-
+      else
+      {
+        printf("Discharge cancelled.\n");
+      }
     }
-    fwrite(&p, sizeof(p), 1 , temp);
+    fwrite(&p, sizeof(p), 1, temp);
   }
   fclose(fp);
   fclose(temp);
+  fclose(discharged);
 
-  if(found) {
+  if (found)
+  {
     remove("patients.dat");
     rename("temp.dat", "patients.dat");
-  } else {
-    remove("temp.dat");
-    printf("Patient with ID %d not found.\n", id);
   }
+  else
+  {
+    remove("temp.dat");
+    printf("❌ Patient with ID %d not found.\n", id);
+  }
+}
+
+void viewDischargedPatients()
+{
+  struct dischargePatient dp;
+  printf("\033[1;34m=== Discharged Patients List ===\033[0m\n");
+
+  FILE *fp = fopen("discharged_patients.dat", "rb");
+  if (fp == NULL)
+  {
+    printf("No discharged patients found.\n");
+    return;
+  }
+  printf("---------------------------------------------------------------\n");
+  int count = 0;
+  while (fread(&dp, sizeof(dp), 1, fp))
+  {
+    printf("Patient ID: %d\n", dp.id);
+    printf("Name: %s\n", dp.name);
+    printf("Age: %d\n", dp.age);
+    printf("Disease: %s\n", dp.disease);
+    printf("Admitted Date: %s\n", dp.admittedDate);
+    printf("Discharge Date: %s\n", dp.dischargeDate);
+    printf("Prescription: %s\n", dp.prescription);
+    printf("---------------------------------------------------------------\n");
+    count++;
+  }
+
+  if (count == 0)
+  {
+    printf("No discharged patients found.\n");
+  }
+  else
+  {
+    printf("Total discharged patients: %d\n", count);
+  }
+  fclose(fp);
 }
 
 void menu()
@@ -382,7 +480,8 @@ void menu()
     printf("4. Delete Patient Record\n");
     printf("5. Update Patient Info\n");
     printf("6. Discharge Patient\n");
-    printf("7. Exit Program\n");
+    printf("7. View Discharged Patients\n");
+    printf("8. Exitting Program\n");
     printf("Enter your choice: ");
     scanf("%d", &choice);
     getchar(); // to consume newline character left by scanf
@@ -413,12 +512,15 @@ void menu()
       dischargePatient();
       break;
     case 7:
+      viewDischargedPatients();
+      break;
+    case 8:
       printf("Exiting program...\n");
       break;
     default:
       printf("Invalid choice! Please try again.\n");
     }
-  } while (choice != 7);
+  } while (choice != 8);
 }
 
 int main()
