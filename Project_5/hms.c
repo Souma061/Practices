@@ -365,7 +365,7 @@ void dischargePatient()
   scanf("%d", &id);
   getchar();
 
-  while (fread(&p, sizeof(p) .1, fp))
+  while (fread(&p, sizeof(p) ,1, fp))
   {
     if (p.id == id)
     {
